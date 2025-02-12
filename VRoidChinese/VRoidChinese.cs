@@ -1,4 +1,5 @@
 using UnityEngine;
+using VRoid.UI.Messages;
 
 namespace VRoidChinese;
 
@@ -7,6 +8,40 @@ public class VRoidChinese : MonoBehaviour
     public VRoidChineseLoader? loader;
     KeyCode refreshLangKey;
     KeyCode switchLangKey;
+    private void Start()
+    {
+        Run();
+    }
+    private void Run()
+    {
+        if (loader == null) { return; }
+        try
+        {
+            var sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+
+            // 备份原文
+            loader.Backup();
+            if (loader.OnStartDump!.Value)
+            {
+                // Dump原文到硬盘
+                loader.DumpOri();
+            }
+            // 开始汉化文本
+            loader.ToCN();
+            //StandaloneWindowTitle.Change("VRoid Studio");
+            // 切换到中文
+            VRoid.UI.EditorOption.EditorOptionManager.Instance.EditorOption.Preference.languageMode = VRoid.UI.EditorOption.LanguageMode.En;
+            Messages.CurrentCrowdinLanguageCode = "en";
+            sw.Stop();
+            loader.Log.LogInfo($"总耗时 {sw.ElapsedMilliseconds}ms");
+        }
+        catch (Exception e)
+        {
+            loader.Log.LogError(e);
+            VRoidChineseLoader.ShowUpdateTip = true;
+        }
+    }
     private void Update()
     {
         if (loader?.DevMode?.Value == true)

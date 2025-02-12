@@ -92,45 +92,20 @@ public class VRoidChineseLoader : BasePlugin
     public bool nowCN;
     public override void Load()
     {
-        try
+        if (!Directory.Exists(TranslatePath))
         {
-            var sw = new System.Diagnostics.Stopwatch();
-            sw.Start();
-            if (!Directory.Exists(TranslatePath))
-            {
-                Directory.CreateDirectory(TranslatePath);
-            }
-            // 读取配置
-            OnStartDump = Config.Bind("config", "OnStartDump", false, "当启动时进行转储 (原词条)");
-            OnHasNullValueDump = Config.Bind("config", "OnHasNullValueDump", false, "当缺失词条时进行转储 (合并后词条)");
-            DevMode = Config.Bind("config", "DevMode", false, "汉化者开发模式");
-            RefreshLangKey = Config.Bind("config", "RefreshLangKey", KeyCode.F10, "[仅限开发模式] 刷新语言快捷键");
-            SwitchLangKey = Config.Bind("config", "SwitchLangKey", KeyCode.F11, "[仅限开发模式] 切换语言快捷键");
+            Directory.CreateDirectory(TranslatePath);
+        }
+        // 读取配置
+        OnStartDump = Config.Bind("config", "OnStartDump", false, "当启动时进行转储 (原词条)");
+        OnHasNullValueDump = Config.Bind("config", "OnHasNullValueDump", false, "当缺失词条时进行转储 (合并后词条)");
+        DevMode = Config.Bind("config", "DevMode", false, "汉化者开发模式");
+        RefreshLangKey = Config.Bind("config", "RefreshLangKey", KeyCode.F10, "[仅限开发模式] 刷新语言快捷键");
+        SwitchLangKey = Config.Bind("config", "SwitchLangKey", KeyCode.F11, "[仅限开发模式] 切换语言快捷键");
 
-            // 备份原文
-            Backup();
-            if (OnStartDump.Value)
-            {
-                // Dump原文到硬盘
-                DumpOri();
-            }
-            // 开始汉化文本
-            ToCN();
-            Harmony.CreateAndPatchAll(typeof(VRoidChineseLoader));
-            //StandaloneWindowTitle.Change("VRoid Studio");
-            // 切换到中文
-            VRoid.UI.EditorOption.EditorOptionManager.Instance.EditorOption.Preference.languageMode = VRoid.UI.EditorOption.LanguageMode.En;
-            Messages.CurrentCrowdinLanguageCode = "en";
-            var vRoidChinese = AddComponent<VRoidChinese>();
-            vRoidChinese.loader = this;
-            sw.Stop();
-            Log.LogInfo($"总耗时 {sw.ElapsedMilliseconds}ms");
-        }
-        catch (Exception e)
-        {
-            Log.LogInfo(e);
-            ShowUpdateTip = true;
-        }
+        var vRoidChinese = AddComponent<VRoidChinese>();
+        vRoidChinese.loader = this;
+        Harmony.CreateAndPatchAll(typeof(VRoidChinese));
     }
 
     /// <summary>
